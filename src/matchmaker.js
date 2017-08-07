@@ -46,33 +46,40 @@ const findWorkersInRange = async requesterFbUid => {
 // }
 
 const findWorkersWithJobType = jobType => {
-    return db.ref(`users`).orderByChild(`jobTypes/${jobType}`).equalTo(true).once("value").then(snapshot => {
-        return snapshot.val()
-    })
+    return db
+        .ref(`users`)
+        .orderByChild(`jobTypes/${jobType}`)
+        .equalTo(true)
+        .once("value")
+        .then(snapshot => {
+            return snapshot.val()
+        })
 }
 
-const getMatchedWorkersWithDistance = async orderId => {
+const getWorkerMatchesUpdateObject = async orderId => {
     const { requesterFbUid, jobType } = await fetchOrder(orderId)
     const workersInRange = await findWorkersInRange(requesterFbUid)
     const workersWithJobType = await findWorkersWithJobType(jobType)
 
     const commonKeys = _.intersection(_.keys(workersInRange), _.keys(workersWithJobType))
 
-    const matchedWorkers = Object.assign(
-        [],
-        ...commonKeys.map(k => {
-            if (k === requesterFbUid) {
+    return Object.assign(
+        {},
+        ...commonKeys.map(workerId => {
+            if (workerId === requesterFbUid) {
                 return
             }
             return {
-                [k]: { distance: workersInRange[k] }
+                [`users/${workerId}/availableJobsAsWorker/${orderId}`]: {
+                    distance: workersInRange[workerId],
+                    jobType
+                },
+                [`orders/${orderId}/availableWorkers/${workerId}`]: true
             }
         })
     )
-
-    return matchedWorkers
 }
 
 export default {
-    getMatchedWorkersWithDistance
+    getWorkerMatchesUpdateObject
 }
