@@ -1,0 +1,35 @@
+{
+    "name": "pocketlambdas",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "prebuild": "rimraf functions",
+        "build": "babel 'src' --out-dir 'functions' --copy-files --ignore 'node_modules'",
+        "postbuild": "cd functions && npm i",
+        "deploy": "npm run build && firebase deploy"
+    },
+    "babel": {
+        "presets": ["eslatest-node6"],
+        "plugins": [
+            "transform-es2015-destructuring",
+            "transform-es2015-parameters",
+            [
+                "transform-object-rest-spread",
+                {
+                    "useBuiltIns": true
+                }
+            ]
+        ]
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "babel-cli": "^6.24.1",
+        "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+        "babel-plugin-transform-es2015-parameters": "^6.24.1",
+        "babel-plugin-transform-object-rest-spread": "^6.23.0",
+        "babel-preset-eslatest-node6": "^1.0.1",
+        "rimraf": "^2.6.1"
+    }
+}

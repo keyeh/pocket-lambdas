@@ -1,0 +1,33 @@
+{
+    "name": "functions",
+    "description": "Cloud Functions for Firebase",
+    "dependencies": {
+        "exponent-server-sdk": "^2.3.1",
+        "firebase-admin": "^4.2.1",
+        "firebase-functions": "^0.5.7",
+        "geofire": "^4.1.2",
+        "lodash": "^4.17.4"
+    },
+    "eslintConfig": {
+        "extends": "eslint:recommended",
+        "parser": "babel-eslint",
+        "parserOptions": {
+            "ecmaVersion": 7,
+            "sourceType": "module",
+            "ecmaFeatures": {
+                "experimentalObjectRestSpread": true
+            }
+        },
+        "env": {
+            "node": true
+        },
+        "rules": {
+            "no-console": 0
+        }
+    },
+    "private": true,
+    "devDependencies": {
+        "babel-eslint": "^7.2.3",
+        "eslint": "^4.3.0"
+    }
+}
