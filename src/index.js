@@ -3,22 +3,19 @@ import matchmaker from "./matchmaker"
 import notifications from "./notifications"
 import db from "./db"
 
-exports.matchWorker = functions.database.ref("/orders/{orderId}/requesterFbUid").onWrite(event => {
-    if (event.data.val() == null) {
-        return
-    }
+exports.matchWorker = functions.database.ref("/orders/{orderId}").onCreate(event => {
     // Grab the current value of what was written to the Realtime Database.
     console.log("Order:", event.params.orderId)
     // You must return a Promise when performing asynchronous tasks inside a Functions such as
     // writing to the Firebase Realtime Database.
-    return matchmaker.getWorkerMatchesUpdateObject(event.params.orderId).then(updates => {
-        return db.ref().update(updates)
-    })
+    return matchmaker
+        .getWorkerMatchesUpdateObject(event.params.orderId)
+        .then(updates => db.ref().update(updates))
 })
 
 exports.notifyWorkerNewMatch = functions.database
-    .ref("/users/{userId}/availableJobsAsWorker/{orderId}/distance")
-    .onWrite(event => {
+    .ref("/users/{userId}/availableJobsAsWorker/{orderId}")
+    .onCreate(event => {
         if (event.data.val() == null) {
             return
         }
@@ -32,3 +29,9 @@ exports.notifyWorkerNewMatch = functions.database
             .notifyWorkerNewMatch(userId, orderId)
             .then(() => notifications.setMatchingEnd(userId, orderId))
     })
+
+exports.handleAcceptJob = functions.database.ref("/orders/{orderId}/worker").onCreate(event => {
+    const { orderId } = event.params
+    const workerId = event.data.val()
+    matchmaker.handleAcceptJob(workerId, orderId).then(updates => db.ref().update(updates))
+})

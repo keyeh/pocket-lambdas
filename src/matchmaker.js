@@ -6,9 +6,7 @@ import db from "./db"
 const geoFire = new GeoFire(db.ref("userLocations"))
 
 const fetchOrder = async orderId => {
-    return db.ref(`orders/${orderId}`).once("value").then(snapshot => {
-        return snapshot.val()
-    })
+    return db.ref(`orders/${orderId}`).once("value").then(snapshot => snapshot.val())
 }
 
 const findWorkersInRange = async requesterFbUid => {
@@ -51,9 +49,7 @@ const findWorkersWithJobType = jobType => {
         .orderByChild(`jobTypes/${jobType}`)
         .equalTo(true)
         .once("value")
-        .then(snapshot => {
-            return snapshot.val()
-        })
+        .then(snapshot => snapshot.val())
 }
 
 const getWorkerMatchesUpdateObject = async orderId => {
@@ -80,6 +76,25 @@ const getWorkerMatchesUpdateObject = async orderId => {
     )
 }
 
+const handleAcceptJob = async (chosenWorkerId, orderId) => {
+    const availableWorkers = await db
+        .ref(`/orders/${orderId}/availableWorkers`)
+        .once("value")
+        .then(snapshot => snapshot.val())
+
+    const availableWorkersKeys = Object.keys(availableWorkers)
+
+    const stuff = Object.assign(
+        {},
+        ...availableWorkersKeys.map(k => ({
+            [`users/${k}/availableJobsAsWorker/${orderId}`]: null,
+            [`orders/${orderId}/availableWorkers/${k}`]: false
+        }))
+    )
+    return stuff
+}
+
 export default {
-    getWorkerMatchesUpdateObject
+    getWorkerMatchesUpdateObject,
+    handleAcceptJob
 }
